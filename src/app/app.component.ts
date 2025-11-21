@@ -1,10 +1,12 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 
+import {InteractParentComponent} from "./component/interact-parent/interact-parent.component";
+
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, InteractParentComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
