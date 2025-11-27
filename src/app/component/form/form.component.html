@@ -1,0 +1,22 @@
+<form nz-form [formGroup]="userForm" (ngSubmit)="submit()">
+  <div>
+    <nz-form-label>Name:</nz-form-label>
+    <input nz-input type="text" formControlName="name">
+    <span *ngIf="userForm.get('name')?.invalid && userForm.get('name')?.touched">
+      Name is required ( min 3 chars)
+    </span>
+  </div>
+  <div>
+    <nz-form-label>Email:</nz-form-label>
+    <input nz-input type="email" formControlName="email">
+    <span *ngIf="userForm.get('email')?.invalid && userForm.get('email')?.touched">
+      Valid email required
+    </span>
+  </div>
+  <div>
+    <nz-form-label>age</nz-form-label>
+    <input nz-input type="number" formControlName="age">
+  </div>
+  <button nz-button nzType="primary" type="submit">Submit</button>
+</form>
+<pre>{{userForm.value.name}}</pre>
