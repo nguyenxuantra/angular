@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Output} from '@angular/core';
+import {Component, EventEmitter, Input, Output} from '@angular/core';
 
 @Component({
   selector: 'app-interact-child',
@@ -7,9 +7,10 @@ import {Component, EventEmitter, Output} from '@angular/core';
   templateUrl: './interact-child.component.html',
 })
 export class InteractChildComponent {
-  @Output() notifi: EventEmitter<any> = new EventEmitter();
+    @Input() message!: string;
+    @Output() info: EventEmitter<string> = new EventEmitter();
 
-  sentToParent(){
-    this.notifi.emit("Hello Application");
-  }
+    sentMessage() {
+      this.info.emit("Hello application"+ this.message);
+    }
 }

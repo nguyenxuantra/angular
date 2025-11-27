@@ -1,4 +1,3 @@
-
-
-<app-interact-child (notifi)="messageInfo($event)"></app-interact-child>
-<p>Message:{{message}}</p>
+<app-interact-child  [message]="sent"  (info)="showMessage($event)"></app-interact-child>
+<button (click)="showAlert()">alert</button>
+<p>Đây là message: {{message}}</p>
