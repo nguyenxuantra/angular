@@ -9,13 +9,11 @@ import {enviroment} from "../../../enviroments/enviroment";
   standalone: true,
   imports: [],
   templateUrl: './goong-map.component.html',
+
 })
 export class GoongMapComponent implements OnInit{
   map: any;
-  startMarker: any;
-  endMarker: any;
-  clickCount =0;
-
+  marker: any;
     ngOnInit() {
       // Khởi tạo map
       this.map = new goongjs.Map({
@@ -25,7 +23,17 @@ export class GoongMapComponent implements OnInit{
         zoom: 13,
         accessToken: enviroment.mapTitleKey
       });
-
+      this.map.on('load', () => {
+        this.maker();
+      })
   }
+  maker(){
 
+    const popup = new goongjs.Popup({ offset: 25}).setText('Day la Ha Noi')
+    // Tạo marker mặc định (không cần custom element)
+    this.marker = new goongjs.Marker()
+      .setLngLat([105.8342, 21.0278])
+      .setPopup(popup)
+      .addTo(this.map);
+  }
 }
