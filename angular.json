@@ -36,7 +36,8 @@
             ],
             "styles": [
               "src/theme.less",
-              "src/styles.scss"
+              "src/styles.scss",
+              "node_modules/@goongmaps/goong-js/dist/goong-js.css"
             ],
             "scripts": []
           },
