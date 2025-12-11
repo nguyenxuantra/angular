@@ -4,7 +4,7 @@ import {enviroment} from "../../../enviroments/enviroment";
 import {NzNotificationService} from "ng-zorro-antd/notification";
 import {NzSpinComponent} from "ng-zorro-antd/spin";
 import {NgTemplateOutlet} from "@angular/common";
-
+import polyline from '@mapbox/polyline';
 
 
 @Component({
@@ -26,6 +26,8 @@ export class GoongMapComponent implements AfterViewInit{
   fromMaker: any;
   toMaker: any;
   routePolygon: any;
+  layer:any;
+  source:any;
   private contextHandle: any;
   private clickMapHandle: any;
   @ViewChild('popupRightClick') popupRightClick!: ElementRef<HTMLDivElement>;
@@ -86,7 +88,7 @@ export class GoongMapComponent implements AfterViewInit{
     }
     this.fromMaker = this.createMarker('assets/image/icon-location-from.png', this.clickPoint).addTo(this.map);
     if(this.fromMaker && this.toMaker){
-      this.drawRoute(this.clickPoint, {lng:this.toMaker.getLngLat().lng, lat:this.toMaker.getLngLat().lat});
+      this.drawRouteUsingApi(this.clickPoint, {lng:this.toMaker.getLngLat().lng, lat:this.toMaker.getLngLat().lat});
     }
   }
   onToHere(){
@@ -97,7 +99,7 @@ export class GoongMapComponent implements AfterViewInit{
     }
     this.toMaker = this.createMarker('assets/image/icon-location-to.png', this.clickPoint).addTo(this.map);
     if(this.fromMaker && this.toMaker){
-      this.drawRoute({lng: this.fromMaker.getLngLat().lng, lat: this.fromMaker.getLngLat().lat},
+      this.drawRouteUsingApi({lng: this.fromMaker.getLngLat().lng, lat: this.fromMaker.getLngLat().lat},
         {lng: this.clickPoint.lng, lat: this.clickPoint.lat},)
     }
   }
@@ -110,6 +112,13 @@ export class GoongMapComponent implements AfterViewInit{
     if(this.toMaker){
       this.toMaker.remove();
       this.toMaker = null;
+    }
+    if (this.map.getLayer('dynamic-route-line')) {
+      this.map.removeLayer('dynamic-route-line');
+    }
+
+    if (this.map.getSource('dynamic-route')) {
+      this.map.removeSource('dynamic-route');
     }
   }
   createMarker(iconUrl: string, point: {lng: number, lat:number}){
@@ -124,42 +133,55 @@ export class GoongMapComponent implements AfterViewInit{
     return marker
   }
 
-  async drawRoute(source: any, target: any){
-    if(this.routePolygon){
-      this.routePolygon.remove();
-      this.routePolygon = null;
-    }
+  async drawRouteUsingApi(source: any, target: any){
     const url = `https://rsapi.goong.io/Direction?origin=${source.lat},${source.lng}&destination=${target.lat},${target.lng}&vehicle=car&api_key=${enviroment.goongApiKey}`;
     try{
       const res = await fetch(url);
       const data = await res.json();
-      if(!data || !data.routes || data.routes.length ===0){
-        console.warn('No route found');
-        return;
-      }
-      const encoded = data.routes[0].overview_polyline?.points || data.routes[0].geometry;
-      let path;
-      if (Array.isArray(encoded)) {
-        path = encoded;
-      } else {
-        // if encoded polyline string -> decode (need polyline lib or goongjs has decode)
-        if (goongjs.Polyline && typeof goongjs.Polyline.decode === 'function') {
-          path = goongjs.Polyline.decode(encoded);
-        } else {
-          // fallback: try parse or skip
-          console.warn('Polyline decode not available');
-          return;
-        }
-      }
-      this.routePolygon = new goongjs.Polyline({
-        path,
-        strokeColor: '#0066FF',
-        strokeWeight: 4,
-        strokeOpacity: 0.8
-      });
-      this.routePolygon.addTo(this.map);
-    }catch(err){
-      console.log('drawRoute error', err)
+      const encoded = data.routes[0].overview_polyline.points;
+      const decoded = polyline.decode(encoded);
+      const coordinates = decoded.map((p:any)=> [p[1],p[0]]);
+      this.drawPolyline(coordinates);
+    }catch (err){
+      console.log("lôi call api", err)
     }
   }
+
+  drawPolyline(coords: any[]){
+    if(this.map.getSource('dynamic-route')){
+      const source = this.map.getSource('dynamic-route') as any;
+      source.setData({
+        type:'Feature',
+        geometry:{
+          type:'LineString',
+          coordinates: coords
+        }
+      });
+      return ;
+    }
+    this.map.addSource('dynamic-route', {
+      type: 'geojson',
+      data: {
+        type: 'Feature',
+        geometry: {
+          type: 'LineString',
+          coordinates: coords
+        }
+      }
+    });
+    this.map.addLayer({
+      id: 'dynamic-route-line',
+      type: 'line',
+      source: 'dynamic-route',
+      layout: {
+        'line-join': 'round',
+        'line-cap': 'round'
+      },
+      paint: {
+        'line-color': '#ff0000',
+        'line-width': 4
+      }
+    });
+  }
+
 }

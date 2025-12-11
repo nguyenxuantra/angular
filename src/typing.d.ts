@@ -3,3 +3,7 @@ declare module '@goongmaps/goong-js' {
   const goongjs: any;
   export = goongjs;
 }
+declare module '@mapbox/polyline'{
+  const polyline: any;
+  export = polyline;
+}

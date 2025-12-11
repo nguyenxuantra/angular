@@ -205,3 +205,44 @@ export class GoongMapComponent implements OnInit, OnDestroy {
     }
   }
 }
+
+
+
+// async drawRoute(source: any, target: any){
+//   if(this.routePolygon){
+//     this.routePolygon.remove();
+//     this.routePolygon = null;
+//   }
+//   const url = `https://rsapi.goong.io/Direction?origin=${source.lat},${source.lng}&destination=${target.lat},${target.lng}&vehicle=car&api_key=${enviroment.goongApiKey}`;
+//   try{
+//     const res = await fetch(url);
+//     const data = await res.json();
+//     if(!data || !data.routes || data.routes.length ===0){
+//       console.warn('No route found');
+//       return;
+//     }
+//     const encoded = data.routes[0].overview_polyline?.points || data.routes[0].geometry;
+//     let path;
+//     if (Array.isArray(encoded)) {
+//       path = encoded;
+//     } else {
+//       // if encoded polyline string -> decode (need polyline lib or goongjs has decode)
+//       if (goongjs.Polyline && typeof goongjs.Polyline.decode === 'function') {
+//         path = goongjs.Polyline.decode(encoded);
+//       } else {
+//         // fallback: try parse or skip
+//         console.warn('Polyline decode not available');
+//         return;
+//       }
+//     }
+//     this.routePolygon = new goongjs.Polyline({
+//       path,
+//       strokeColor: '#0066FF',
+//       strokeWeight: 4,
+//       strokeOpacity: 0.8
+//     });
+//     this.routePolygon.addTo(this.map);
+//   }catch(err){
+//     console.log('drawRoute error', err)
+//   }
+// }
